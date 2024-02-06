@@ -1,9 +1,12 @@
 FROM debian:bookworm
 
-RUN sudo apt-get update && sudo apt-get upgrade -y
-RUN sudo apt-get php php8.2-fpm php-mysqli curl vim -y
-RUN mkdir -p /var/www/melkholy.42.fr
-COPY ./tools/install_configure_wp.sh ~/
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install php8.2 php8.2-fpm php8.2-mysqli curl vim -y
+RUN mkdir -p /var/www/html
+RUN mkdir /wp_cli
+COPY ./tools/install_configure_wp.sh /wp_cli
+COPY ./conf/wp-config.php /wp_cli
+WORKDIR /wp_cli
 EXPOSE 9000
 
-ENTRYPOINT [ "bash", "~/install_configure_wp.sh" ]
+CMD [ "./install_configure_wp.sh" ]

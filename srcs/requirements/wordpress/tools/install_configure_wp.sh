@@ -4,8 +4,7 @@
 install_test_wp_cli()
 {
 	curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-	php wp-cli.phar --info
-	return ($?)
+	return $?
 }
 
 # Change wp-cli permissions and move it to the local executoion directory the update it.
@@ -19,35 +18,33 @@ configure_update_wp_cli()
 # Download WordPress and create its configuration file.
 download_configure_wordpress()
 {
-	cd $WP_DIR
+	cd /var/www/html
 	wp core download --allow-root
-	wp config create \
-		--dbname=$MARIADB_NAME \
-		--dbuser=$WP_USER \
-		--dbpass=$WP_USER_PASS \
-		--dbhost=$MARIADB_SERVER
-	test -b wp-config.php
-	return ($?)
+	mv /wp_cli/wp-config.php .
+	sed -i -E "s/database_name/$MARIADB_NAME/1" ./wp-config.php
+	sed -i -E "s/username/$WP_USER/1" ./wp-config.php
+	sed -i -E "s/password/$WP_USER_PASS/1" ./wp-config.php
+	return $?
 }
 
 # Install and setup WordPress cerdentials.
 install_wordpress()
 {
-	wp db create --path=$WP_DIR
 	wp core install \
 		--url="melkholy.42.fr" \
 		--title="Solariscode" \
-		--admin_user=$WP_ADMIN_USER \
-		--admin_password=$WP_ADMIN_PASS \
-		--admin-email=$WP_ADMIN_EMAIL \
-		--path=$WP_DIR
-	return ($?)
+		--admin_user="$WP_ADMIN_USER" \
+		--admin_password="$WP_ADMIN_PASS" \
+		--admin_email="$WP_ADMIN_EMAIL" \
+		--skip-email \
+		--allow-root
+	return $?
 }
 
 # Setting up WordPress
 setup_wordpress()
 {
-	wp rewrite structure '%postname%'
+	wp rewrite structure '%postname%' --allow-root
 	# wp plugin delete akismet hello
 	# wp plugin install
 	# wp plugin activate --all
@@ -73,3 +70,6 @@ if [ $? = 1 ]; then
 fi
 
 setup_wordpress
+echo "Setting up WordPress was successfull!"
+sed -i -E 's/listen = \/run\/php\/php8.2-fpm.sock/listen = 9000/g' /etc/php/8.2/fpm/pool.d/www.conf
+/usr/sbin/php-fpm8.2 -F
