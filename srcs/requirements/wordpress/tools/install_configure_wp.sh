@@ -12,13 +12,15 @@ configure_update_wp_cli()
 {
 	chmod u+x wp-cli.phar
 	mv wp-cli.phar /usr/local/bin/wp
-	wp cli update
+	wp cli update << EOF
+	y
+EOF
 }
 
 # Download WordPress and create its configuration file.
 download_configure_wordpress()
 {
-	cd /var/www/html
+	cd /var/www/$WP_DIR
 	wp core download --allow-root
 	mv /wp_cli/wp-config.php .
 	sed -i -E "s/database_name/$MARIADB_NAME/1" ./wp-config.php
@@ -31,8 +33,8 @@ download_configure_wordpress()
 install_wordpress()
 {
 	wp core install \
-		--url="melkholy.42.fr" \
-		--title="Solariscode" \
+		--url=$WEBSITE_URL \
+		--title=$WEBSITE_TITLE \
 		--admin_user="$WP_ADMIN_USER" \
 		--admin_password="$WP_ADMIN_PASS" \
 		--admin_email="$WP_ADMIN_EMAIL" \
@@ -46,8 +48,19 @@ setup_wordpress()
 {
 	wp rewrite structure '%postname%' --allow-root
 	# wp plugin delete akismet hello
-	# wp plugin install
-	# wp plugin activate --all
+	wp theme delete "twentytwentytwo" --allow-root
+	wp theme delete "twentytwentythree" --allow-root
+}
+
+check_wordpress_insallation()
+{
+	wp core version --path='/var/www/melkholy.42.fr' --allow-root
+	if [ $? = 1 ]; then
+		return
+	fi
+	echo "Setting up WordPress was successful!"
+	sed -i -E 's/listen = \/run\/php\/php8.2-fpm.sock/listen = 9000/1' /etc/php/8.2/fpm/pool.d/www.conf
+	/usr/sbin/php-fpm8.2 -F
 }
 
 install_test_wp_cli
@@ -57,6 +70,8 @@ if [ $? = 1 ]; then
 fi
 
 configure_update_wp_cli
+check_wordpress_insallation
+echo "Configuring WordPress......."
 download_configure_wordpress
 if [ $? = 1 ]; then
 	echo "WP-Cli Configuration failed!"
@@ -70,6 +85,6 @@ if [ $? = 1 ]; then
 fi
 
 setup_wordpress
-echo "Setting up WordPress was successfull!"
+echo "Setting up WordPress was successful!"
 sed -i -E 's/listen = \/run\/php\/php8.2-fpm.sock/listen = 9000/g' /etc/php/8.2/fpm/pool.d/www.conf
 /usr/sbin/php-fpm8.2 -F

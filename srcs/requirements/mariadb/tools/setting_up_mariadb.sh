@@ -26,12 +26,13 @@ create_configure_database()
 	mysql -u"$MARIADB_ROOT_USER" -p"$MARIADB_ROOT_PASS" << EOF
 	CREATE DATABASE IF NOT EXISTS $MARIADB_NAME ;
 	CREATE USER '$WP_USER'@'%' IDENTIFIED BY '$WP_USER_PASS' ;
-	GRANT ALL PRIVILEGES ON $MARIADB_NAME.* TO '$WP_USER'@'%' ;
+	GRANT ALL PRIVILEGES ON $MARIADB_NAME.* TO '$WP_USER'@'%' WITH GRANT OPTION ;
 	FLUSH PRIVILEGES;
 EOF
 	return $?
 }
 
+# Start setting up MariaDB.
 setting_up_mariadb
 if [ $? = 1 ]; then
 	echo "MariaDB setup failed!"
@@ -40,6 +41,7 @@ else
 	echo "MariaDB setup was Successful!"
 fi
 
+# Create WordPress database and its user.
 create_configure_database
 if [ $? = 1 ]; then
 	echo "MariaDB Configuration failed!"
@@ -49,5 +51,6 @@ else
 fi
 
 # Stop MariaDB service to make sure there is no other instances running
+# then start it again and tie it to the current terminal session.
 service mariadb stop
 mysqld
