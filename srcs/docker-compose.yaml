@@ -1,0 +1,63 @@
+version: "3.1"
+
+services:
+  mariadb:
+    container_name: mariadb
+    build: ./requirements/mariadb/
+    image: mariadb:inc
+    networks:
+        - wp_network
+    volumes:
+      - mariadb:/var/lib/mysql
+    env_file: .env
+    restart: always
+
+  wordpress:
+    container_name: wordpress
+    build: ./requirements/wordpress/
+    image: wordpress:inc
+    depends_on:
+      - mariadb
+    networks:
+        - wp_network
+    volumes:
+      - wordpress:/var/www/melkholy.42.fr
+    env_file: .env
+    restart: always
+
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx/
+    image: nginx:inc
+    depends_on:
+      - mariadb
+    ports:
+      - 443:443
+    networks:
+      - wp_network
+    volumes:
+      - wordpress:/var/www/melkholy.42.fr
+    env_file: .env
+    restart: always
+
+
+volumes:
+  mariadb:
+    name: mariadb
+    driver: local
+    driver_opts:
+      device: /home/melkholy/data/db_data
+      o: bind
+      type: none
+  wordpress:
+    name: wordpress
+    driver: local
+    driver_opts:
+      device: /home/melkholy/data/wp_data
+      o: bind
+      type: none
+
+networks:
+ wp_network:
+    driver: bridge
+    name: wp_network
