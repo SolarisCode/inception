@@ -1,0 +1,34 @@
+server {
+  listen 443 ssl;
+  listen [::]:443 ssl;
+
+  index index.php;
+  root /var/www/melkholy.42.fr;
+  server_name melkholy.42.fr www.melkholy.42.fr;
+ 
+  ssl_certificate /etc/ssl/certs/melkholy.crt;
+  ssl_certificate_key /etc/ssl/private/melkholy.key;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers HIGH:!aNULL:!MD5;
+
+#  Azure Configuration
+
+#  root /var/www/melkholy.switzerlandnorth.cloudapp.azure.com;
+#  server_name  melkholy.switzerlandnorth.cloudapp.azure.com www.melkholy.switzerlandnorth.cloudapp.azure.com;
+
+#  ssl_certificate /etc/ssl/certs/melkholy.switzerlandnorth.cloudapp.azure.com.crt;
+#  ssl_certificate_key /etc/ssl/private/melkholy.switzerlandnorth.cloudapp.azure.com.key;
+#  ssl_protocols TLSv1.2 TLSv1.3;
+#  ssl_ciphers HIGH:!aNULL:!MD5;
+
+  location / {
+    try_files $uri $uri/ =404;
+  }
+
+ location ~ \.php$ {
+   include fastcgi_params;
+   fastcgi_pass wordpress:9000;
+   fastcgi_index index.php;
+   fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+ }
+}
