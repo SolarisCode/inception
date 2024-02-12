@@ -2,7 +2,7 @@
 
 setting_up_nginx()
 {
-       chown -R www-data:www-data /var/www/melkholy.42.fr
+       chown -hR 33:33 /var/www/melkholy.42.fr
        ln -s /etc/nginx/sites-available/melkholy.42.fr /etc/nginx/sites-enabled/
        openssl req \
               -newkey rsa:2048 -nodes -keyout /etc/ssl/private/melkholy.key \
