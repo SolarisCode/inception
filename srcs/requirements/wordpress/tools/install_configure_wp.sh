@@ -53,8 +53,8 @@ install_wordpress()
 	# 	--skip-email \
 	# 	 --allow-root
 	su "$WP_USER" -c 'wp core install \
-		--url="melkholy.switzerlandnorth.cloudapp.azure.com" \
-		--title="Solariscode" \
+		--url="$WEBSITE_URL" \
+		--title="$WEBSITE_TITLE" \
 		--admin_user="$WP_ADMIN_USER" \
 		--admin_password="$WP_ADMIN_PASS" \
 		--admin_email="$WP_ADMIN_EMAIL" \
