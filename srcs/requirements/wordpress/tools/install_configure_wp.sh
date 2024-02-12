@@ -10,7 +10,7 @@ install_test_wp_cli()
 # Change wp-cli permissions and move it to the local executoion directory the update it.
 configure_update_wp_cli()
 {
-	chmod u+x wp-cli.phar
+	chmod a+x wp-cli.phar
 	mv wp-cli.phar /usr/local/bin/wp
 	wp cli update << EOF
 	y
@@ -20,7 +20,7 @@ EOF
 # Download WordPress and create its configuration file.
 download_configure_wordpress()
 {
-	cd /var/www/$WP_DIR
+	cd $WP_DIR
 	# wp core download --allow-root
 	# mv /wp_cli/wp-config.php .
 	# sed -i -E "s/database_name/$MARIADB_NAME/1" ./wp-config.php
