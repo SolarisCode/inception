@@ -1,13 +1,13 @@
 server {
-  listen 443 ssl;
-  listen [::]:443 ssl;
+  listen 443 ssl default_server;
+  listen [::]:443 ssl default_server;
 
-  index index.php;
+  index index.php index.html index.htm;
   root /var/www/melkholy.42.fr;
   server_name melkholy.42.fr www.melkholy.42.fr;
  
-  ssl_certificate /etc/ssl/certs/melkholy.crt;
-  ssl_certificate_key /etc/ssl/private/melkholy.key;
+  ssl_certificate ${SSL_CERT};
+  ssl_certificate_key ${SSL_KEY};
   ssl_protocols TLSv1.2 TLSv1.3;
   ssl_ciphers HIGH:!aNULL:!MD5;
 
@@ -16,19 +16,21 @@ server {
 #  root /var/www/melkholy.switzerlandnorth.cloudapp.azure.com;
 #  server_name  melkholy.switzerlandnorth.cloudapp.azure.com www.melkholy.switzerlandnorth.cloudapp.azure.com;
 
-#  ssl_certificate /etc/ssl/certs/melkholy.switzerlandnorth.cloudapp.azure.com.crt;
-#  ssl_certificate_key /etc/ssl/private/melkholy.switzerlandnorth.cloudapp.azure.com.key;
+#  ssl_certificate ${AZURE_CERT};
+#  ssl_certificate_key ${AZURE_KEY};
 #  ssl_protocols TLSv1.2 TLSv1.3;
 #  ssl_ciphers HIGH:!aNULL:!MD5;
 
   location / {
-    try_files $uri $uri/ =404;
+    try_files ${SIGN}uri ${SIGN}uri/ =404;
+    proxy_redirect off;
   }
 
- location ~ \.php$ {
-   include fastcgi_params;
+ location ~ \.php${SIGN} {
+   include snippets/fastcgi-php.conf;
    fastcgi_pass wordpress:9000;
-   fastcgi_index index.php;
-   fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+   #fastcgi_index index.php;
+   fastcgi_param SCRIPT_FILENAME ${SIGN}document_root${SIGN}fastcgi_script_name;
+   include fastcgi_params;
  }
 }
