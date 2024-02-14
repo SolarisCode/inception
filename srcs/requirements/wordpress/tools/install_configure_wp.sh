@@ -21,11 +21,6 @@ EOF
 download_configure_wordpress()
 {
 	cd $WP_DIR
-	# wp core download --allow-root
-	# mv /wp_cli/wp-config.php .
-	# sed -i -E "s/database_name/$MARIADB_NAME/1" ./wp-config.php
-	# sed -i -E "s/username/$WP_USER/1" ./wp-config.php
-	# sed -i -E "s/password/$WP_USER_PASS/1" ./wp-config.php
 	useradd --create-home --shell /bin/bash --user-group "$WP_USER"
 	passwd "$WP_USER" << EOF
 	$WP_USER_PASS
@@ -38,23 +33,19 @@ EOF
 	su "$WP_USER" -c 'wp config set "DB_USER" "$WP_USER"'
 	su "$WP_USER" -c 'wp config set "DB_PASSWORD" "$WP_USER_PASS"'
 	su "$WP_USER" -c 'wp config set "DB_HOST" "$DB_HOST"'
+	su "$WP_USER" -c 'wp config set "WP_ALLOW_REPAIR" "true"'
+	su "$WP_USER" -c 'wp config set "WP_HOME" "https://melkholy.42.fr"'
+	su "$WP_USER" -c 'wp config set "WP_SITEURL" "https://melkholy.42.fr"'
+	su "$WP_USER" -c 'wp config shuffle-salts'
 	return $?
 }
 
 # Install and setup WordPress cerdentials.
 install_wordpress()
 {
-	# wp core install \
-	# 	--url=$WEBSITE_URL \
-	# 	--title=$WEBSITE_TITLE \
-	# 	--admin_user="$WP_ADMIN_USER" \
-	# 	--admin_password="$WP_ADMIN_PASS" \
-	# 	--admin_email="$WP_ADMIN_EMAIL" \
-	# 	--skip-email \
-	# 	 --allow-root
 	su "$WP_USER" -c 'wp core install \
 		--url="$WEBSITE_URL" \
-		--title="$WEBSITE_TITLE" \
+		--title="WEBSITE_TITLE" \
 		--admin_user="$WP_ADMIN_USER" \
 		--admin_password="$WP_ADMIN_PASS" \
 		--admin_email="$WP_ADMIN_EMAIL" \
@@ -65,11 +56,8 @@ install_wordpress()
 # Setting up WordPress
 setup_wordpress()
 {
-	# wp rewrite structure '%postname%' --allow-root
-	# wp theme delete "twentytwentytwo" --allow-root
-	# wp theme delete "twentytwentythree" --allow-root
 	su "$WP_USER" -c 'wp user create "$AUTHOR" "$AUTHOR_EMAIL" --role=author --user_pass="$AUTHOR_PASS"'
-	su "$WP_USER" -c "wp rewrite structure '%postname%'"
+	#su "$WP_USER" -c "wp rewrite structure '%postname%'"
 	su "$WP_USER" -c 'wp theme delete "twentytwentytwo"'
 	su "$WP_USER" -c 'wp theme delete "twentytwentythree"'
 }
