@@ -6,7 +6,7 @@ setting_up_nginx()
        openssl req \
               -newkey rsa:2048 -nodes -keyout $SSL_KEY \
               -x509 -days 365 -out $SSL_CERT \
-              -subj "/C=DE/ST=Lower Saxon/L=Wolfsburg/O=Melkholy 42Wolfsburg/CN=melkholy.42.com"
+              -subj "/C=DE/ST=Lower Saxony/L=Wolfsburg/O=Melkholy 42Wolfsburg/CN=melkholy.42.com"
        envsubst < melkholy.42.fr > /etc/nginx/sites-available/default
        # openssl req \
        #        -newkey rsa:2048 -nodes -keyout $AZURE_KEY \
